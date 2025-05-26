@@ -1,0 +1,33 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Vinayak Rana"
+  navbar:
+    right:
+      - href: index.qmd
+        text: Home
+      - href: papers/index.qmd
+        text: Publications
+      - href: timeline.qmd
+        text: Timeline
+      - href: blog
+        text: Blog
+      - href: Home
+        text: CV
+
+format:
+  html:
+    theme:
+      light: [litera, styles.scss]
+      dark: [darkly, styles-dark.scss]
+    highlight-style: a11y-dark
+    mainfont: "Roboto"
+    code-copy: true
+    code-overflow: wrap
+
+
+execute:
+  freeze: auto
+
