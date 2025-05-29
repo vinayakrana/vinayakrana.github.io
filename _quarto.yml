@@ -3,6 +3,7 @@ project:
   output-dir: docs
 
 website:
+  favicon: images/VR.png
   title: "Vinayak Rana"
   navbar:
     right:
