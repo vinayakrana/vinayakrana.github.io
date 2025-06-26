@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://vinayakrana.github.io/papers/index.html</loc>
-    <lastmod>2025-05-29T13:34:20.057Z</lastmod>
-  </url>
-  <url>
-    <loc>https://vinayakrana.github.io/index.html</loc>
-    <lastmod>2025-05-29T13:34:20.057Z</lastmod>
+    <loc>https://vinayakrana.github.io/apps.html</loc>
+    <lastmod>2025-06-26T20:51:50.243Z</lastmod>
   </url>
   <url>
     <loc>https://vinayakrana.github.io/timeline.html</loc>
-    <lastmod>2025-05-29T13:34:20.057Z</lastmod>
+    <lastmod>2025-06-26T20:51:50.276Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vinayakrana.github.io/papers/index.html</loc>
+    <lastmod>2025-06-26T20:51:50.276Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vinayakrana.github.io/index.html</loc>
+    <lastmod>2025-06-26T20:51:50.276Z</lastmod>
   </url>
 </urlset>

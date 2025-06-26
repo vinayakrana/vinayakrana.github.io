@@ -1,5 +1,26 @@
 [
   {
+    "objectID": "apps.html",
+    "href": "apps.html",
+    "title": "ScholarBot: AI-powered chatbot designed to assist with academic queries",
+    "section": "",
+    "text": "ScholarBot: AI-powered chatbot designed to assist with academic queries"
+  },
+  {
+    "objectID": "timeline.html",
+    "href": "timeline.html",
+    "title": "Timeline",
+    "section": "",
+    "text": "Will be updated soon…."
+  },
+  {
+    "objectID": "timeline.html#section",
+    "href": "timeline.html#section",
+    "title": "Timeline",
+    "section": "",
+    "text": "Will be updated soon…."
+  },
+  {
     "objectID": "papers/index.html",
     "href": "papers/index.html",
     "title": "Publications",
@@ -19,19 +40,5 @@
     "title": "Vinayak Rana",
     "section": "",
     "text": "Vinayak Rana is a Master’s student in Artificial Intelligence at IIT Gandhinagar. He is an active member of the Sustainability Lab, advised by Prof. Nipun Batra. His interests lie in building practical and reliable AI systems, with a focus on spatiotemporal modeling, active learning and natural language processing. Vinayak is passionate about applying machine learning techniques to solve real-world problems and is actively exploring opportunities to contribute to impactful AI research and development. He secured an All India Rank (AIR) of 733 in GATE CS 2024."
-  },
-  {
-    "objectID": "timeline.html",
-    "href": "timeline.html",
-    "title": "Timeline",
-    "section": "",
-    "text": "Will be updated soon…."
-  },
-  {
-    "objectID": "timeline.html#section",
-    "href": "timeline.html#section",
-    "title": "Timeline",
-    "section": "",
-    "text": "Will be updated soon…."
   }
 ]
