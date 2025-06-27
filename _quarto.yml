@@ -13,8 +13,8 @@ website:
         text: Publications
       - href: timeline.qmd
         text: Timeline
-      - href: blog
-        text: Blog
+      - href:  tech_nuggets/index.qmd
+        text: Tech Nuggets
       - href: apps
         text: Apps
       - href: Home
