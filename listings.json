@@ -2,6 +2,7 @@
   {
     "listing": "/tech_nuggets/index.html",
     "items": [
+      "/tech_nuggets/posts/gumbel.html",
       "/tech_nuggets/posts/dict_key_lookup.html"
     ]
   }
