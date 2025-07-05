@@ -377,7 +377,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>Not quite</strong>. Say hello to the <strong>Gumbel-Softmax</strong> trick.<br> You can’t backprop through discrete sampling directly but you can use a continuous relaxation like the Gumbel-Softmax, which approximates categorical sampling in a differentiable way.</p>
 </section>
 <section id="why-argmax-kills-your-gradients" class="level4">
-<h4 class="anchored" data-anchor-id="why-argmax-kills-your-gradients">❌ Why argmax Kills Your Gradients</h4>
+<h4 class="anchored" data-anchor-id="why-argmax-kills-your-gradients">Why argmax Kills Your Gradients</h4>
 <p>Backpropagation needs continuous functions. But argmax is not one it’s a discrete, non-differentiable operation. That means if your model makes a hard choice using argmax, the gradient signal hits a wall.</p>
 <p>Let’s see that in code:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -392,7 +392,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The call to .backward() fails because gradients can’t flow through argmax it’s not differentiable with respect to logits. The model can’t learn from this signal.</p>
 </section>
 <section id="the-magic-behind-gumbel-softmax" class="level3">
-<h3 class="anchored" data-anchor-id="the-magic-behind-gumbel-softmax">🧙‍♂️ The Magic Behind Gumbel-Softmax</h3>
+<h3 class="anchored" data-anchor-id="the-magic-behind-gumbel-softmax">The Magic Behind Gumbel-Softmax</h3>
 <p>What if, instead of making a hard discrete decision, your model makes a soft approximation one that’s almost one-hot but still differentiable?</p>
 <p>That’s exactly what the Gumbel-Softmax trick does. It turns the categorical sampling problem into a smooth, trainable operation.</p>
 <p>Here’s the idea:</p>
@@ -478,7 +478,7 @@ Step 90: Loss = 0.1468</code></pre>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="gumbel_files/figure-html/cell-4-output-1.png" width="389" height="409" class="figure-img"></p>
+<p><img src="gumbel_files/figure-html/cell-4-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
