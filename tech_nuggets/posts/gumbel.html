@@ -368,17 +368,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="can-you-backprop-through-a-discrete-choice" class="level4">
-<h4 class="anchored" data-anchor-id="can-you-backprop-through-a-discrete-choice">Can You Backprop Through a Discrete Choice?</h4>
-<p>Suppose your model must choose one of several categories say, Red, Green, or Blue.</p>
-<p>You use <code>argmax</code> or sample from a categorical distribution. But then how do you backpropagate?</p>
+<section id="can-neural-networks-learn-to-make-hard-choices-and-still-be-trained-with-backprop" class="level4">
+<h4 class="anchored" data-anchor-id="can-neural-networks-learn-to-make-hard-choices-and-still-be-trained-with-backprop">Can Neural Networks Learn to Make Hard Choices and Still Be Trained with Backprop?</h4>
+<p>Imagine your model needs to choose one among several categories say, Red, Green, or Blue. The obvious choice? Use argmax or sample from a categorical distribution. But here’s the catch: backpropagation doesn’t work through discrete decisions.</p>
 </section>
-<section id="answer-you-cant." class="level4">
-<h4 class="anchored" data-anchor-id="answer-you-cant.">Answer: You can’t.</h4>
-<p>But you can cheat slightly and still train using the Gumbel-Softmax trick.</p>
+<section id="so-are-we-stuck" class="level4">
+<h4 class="anchored" data-anchor-id="so-are-we-stuck">So, are we stuck?</h4>
+<p><strong>Not quite</strong>. Say hello to the <strong>Gumbel-Softmax</strong> trick.<br> You can’t backprop through discrete sampling directly but you can use a continuous relaxation like the Gumbel-Softmax, which approximates categorical sampling in a differentiable way.</p>
 </section>
-<section id="the-problem-argmax-breaks-gradients" class="level4">
-<h4 class="anchored" data-anchor-id="the-problem-argmax-breaks-gradients">The Problem: argmax Breaks Gradients</h4>
+<section id="why-argmax-kills-your-gradients" class="level4">
+<h4 class="anchored" data-anchor-id="why-argmax-kills-your-gradients">❌ Why argmax Kills Your Gradients</h4>
+<p>Backpropagation needs continuous functions. But argmax is not one it’s a discrete, non-differentiable operation. That means if your model makes a hard choice using argmax, the gradient signal hits a wall.</p>
+<p>Let’s see that in code:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -388,106 +389,102 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>loss <span class="op">=</span> sample.<span class="bu">float</span>().<span class="bu">sum</span>()</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>loss.backward()  <span class="co">#  Throws an error</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The call to .backward() fails because gradients can’t flow through argmax it’s not differentiable with respect to logits. The model can’t learn from this signal.</p>
 </section>
 <section id="the-magic-behind-gumbel-softmax" class="level3">
 <h3 class="anchored" data-anchor-id="the-magic-behind-gumbel-softmax">🧙‍♂️ The Magic Behind Gumbel-Softmax</h3>
-<p>Okay, you want your model to pick one option out of many. But you still want to train it with backprop?</p>
-<p>Most people try this:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>choice <span class="op">=</span> torch.argmax(logits, dim<span class="op">=-</span><span class="dv">1</span>)  <span class="co"># ❌ Not differentiable</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<section id="boom.-backprop-dies." class="level5">
-<h5 class="anchored" data-anchor-id="boom.-backprop-dies.">Boom. Backprop dies.</h5>
-<p>Gradients have no idea how to flow through that hard decision.</p>
-<p><em>So what if instead of a hard choice we pretend to choose using a soft, trainable mask?</em></p>
-<p>That’s exactly what the Gumbel-Softmax trick does.</p>
+<p>What if, instead of making a hard discrete decision, your model makes a soft approximation one that’s almost one-hot but still differentiable?</p>
+<p>That’s exactly what the Gumbel-Softmax trick does. It turns the categorical sampling problem into a smooth, trainable operation.</p>
+<p>Here’s the idea:</p>
 <div id="6533520d" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sample_gumbel(shape, eps<span class="op">=</span><span class="fl">1e-20</span>):</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    U <span class="op">=</span> torch.rand(shape)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>torch.log(<span class="op">-</span>torch.log(U <span class="op">+</span> eps) <span class="op">+</span> eps)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> gumbel_softmax(logits, tau<span class="op">=</span><span class="fl">1.0</span>):</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> sample_gumbel(logits.shape)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> F.softmax((logits <span class="op">+</span> g) <span class="op">/</span> tau, dim<span class="op">=-</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sample_gumbel(shape, eps<span class="op">=</span><span class="fl">1e-20</span>):</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    U <span class="op">=</span> torch.rand(shape)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>torch.log(<span class="op">-</span>torch.log(U <span class="op">+</span> eps) <span class="op">+</span> eps)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> gumbel_softmax(logits, tau<span class="op">=</span><span class="fl">1.0</span>):</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> sample_gumbel(logits.shape)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> F.softmax((logits <span class="op">+</span> g) <span class="op">/</span> tau, dim<span class="op">=-</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ul>
-<li><p>logits are your unnormalized preferences</p></li>
-<li><p>g is random Gumbel noise added to shake things up</p></li>
-<li><p>tau is the temperature, controls how sharp or soft the final decision is</p></li>
-<li><p>Softmax turns the noisy preferences into a smooth probability vector</p></li>
+<li><p>logits are your raw scores (before softmax).</p></li>
+<li><p>g is Gumbel noise, which injects randomness to simulate sampling.</p></li>
+<li><p>tau is the temperature a hyperparameter that controls how sharp or soft the final distribution is.</p></li>
+<li><p>The final output is a differentiable approximation of a one-hot vector.</p></li>
 </ul>
-<p>As tau → 0 The softmax becomes sharper, and the output becomes almost one-hot like a discrete decision!</p>
-<p><strong>Visual Example:</strong> Learn to Blend Colors Let’s say your model needs to pick one color — Red, Green, or Blue — to match a target color (like purple 💜).</p>
-<p>But instead of making a hard choice, it learns to blend the colors using Gumbel-Softmax.</p>
+<p>As <code>τ → 0</code>, the softmax output becomes almost one-hot, mimicking a discrete choice. As <code>τ → ∞</code>, it becomes uniform, meaning the model explores all choices equally.</p>
+<p><strong>Visual Example:</strong> Learn to Blend Colors Let’s bring this to life with a colorful example.</p>
+<p>Imagine your model needs to select one color from a palette Red, Green, or Blue to match a target color like purple 💜. But instead of choosing just one, it learns to blend them softly, using Gumbel-Softmax!</p>
 <div id="6d256703" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Our palette</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>palette <span class="op">=</span> torch.tensor([</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    [<span class="fl">1.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>],  <span class="co"># Red</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    [<span class="fl">0.0</span>, <span class="fl">1.0</span>, <span class="fl">0.0</span>],  <span class="co"># Green</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    [<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">1.0</span>]   <span class="co"># Blue</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>])</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Trainable selection logits</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>logits <span class="op">=</span> torch.nn.Parameter(torch.randn(<span class="dv">1</span>, <span class="dv">3</span>))</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Our target is purple (red + blue)</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>target <span class="op">=</span> torch.tensor([[<span class="fl">0.5</span>, <span class="fl">0.0</span>, <span class="fl">0.5</span>]])</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.Adam([logits], lr<span class="op">=</span><span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="522b8cea" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>losses <span class="op">=</span> []</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">100</span>):</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    opt.zero_grad()</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    probs <span class="op">=</span> gumbel_softmax(logits, tau<span class="op">=</span><span class="fl">0.5</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    color <span class="op">=</span> probs <span class="op">@</span> palette  <span class="co"># Weighted blend</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> F.mse_loss(color, target)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    losses.append(loss.item())</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    loss.backward()</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    opt.step()</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> step <span class="op">%</span> <span class="dv">10</span> <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Step </span><span class="sc">{</span>step<span class="sc">}</span><span class="ss">: Loss = </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">42</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>random.seed(<span class="dv">42</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>palette <span class="op">=</span> torch.tensor([</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    [<span class="fl">1.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>],  <span class="co"># Red</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    [<span class="fl">0.0</span>, <span class="fl">1.0</span>, <span class="fl">0.0</span>],  <span class="co"># Green</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    [<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">1.0</span>]   <span class="co"># Blue</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>logits <span class="op">=</span> torch.nn.Parameter(torch.randn(<span class="dv">1</span>, <span class="dv">3</span>))</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Target color: Purple (blend of Red + Blue)</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>target <span class="op">=</span> torch.tensor([[<span class="fl">0.5</span>, <span class="fl">0.0</span>, <span class="fl">0.5</span>]])</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.Adam([logits], lr<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>losses <span class="op">=</span> []</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">100</span>):</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    opt.zero_grad()</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    probs <span class="op">=</span> gumbel_softmax(logits, tau<span class="op">=</span><span class="fl">0.5</span>)  <span class="co"># Sample a soft blend</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    color <span class="op">=</span> probs <span class="op">@</span> palette                  <span class="co"># Weighted sum of RGB</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> F.mse_loss(color, target)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    losses.append(loss.item())</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    loss.backward()</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    opt.step()</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> step <span class="op">%</span> <span class="dv">10</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Step </span><span class="sc">{</span>step<span class="sc">}</span><span class="ss">: Loss = </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Step 0: Loss = 0.0150
-Step 10: Loss = 0.1047
-Step 20: Loss = 0.1366
-Step 30: Loss = 0.1662
-Step 40: Loss = 0.1665
-Step 50: Loss = 0.0556
-Step 60: Loss = 0.0257
-Step 70: Loss = 0.1486
-Step 80: Loss = 0.1489
-Step 90: Loss = 0.0219</code></pre>
+<pre><code>Step 0: Loss = 0.0068
+Step 10: Loss = 0.0021
+Step 20: Loss = 0.1645
+Step 30: Loss = 0.1280
+Step 40: Loss = 0.0734
+Step 50: Loss = 0.1265
+Step 60: Loss = 0.1180
+Step 70: Loss = 0.1632
+Step 80: Loss = 0.0632
+Step 90: Loss = 0.1468</code></pre>
 </div>
 </div>
-<div id="6c7501a7" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    probs <span class="op">=</span> F.softmax(logits, dim<span class="op">=-</span><span class="dv">1</span>)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    blended <span class="op">=</span> probs <span class="op">@</span> palette</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    plt.imshow(blended.view(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>).numpy())</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="ss">f"Final Color — probs=</span><span class="sc">{</span>probs<span class="sc">.</span>numpy()<span class="sc">.</span><span class="bu">round</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    plt.axis(<span class="st">'off'</span>)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="6c7501a7" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    probs <span class="op">=</span> F.softmax(logits, dim<span class="op">=-</span><span class="dv">1</span>)  <span class="co"># Final softmax</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    blended <span class="op">=</span> probs <span class="op">@</span> palette          <span class="co"># Final color</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    plt.imshow(blended.view(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>).numpy())</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="ss">f"Final Color — probs=</span><span class="sc">{</span>probs<span class="sc">.</span>numpy()<span class="sc">.</span><span class="bu">round</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="gumbel_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="gumbel_files/figure-html/cell-4-output-1.png" width="389" height="409" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-</section>
-<section id="boom-the-model-learns-a-soft-mix-of-red-and-blue-to-match-the-purple-target." class="level4">
-<h4 class="anchored" data-anchor-id="boom-the-model-learns-a-soft-mix-of-red-and-blue-to-match-the-purple-target."><strong>Boom!</strong> The model learns a soft mix of red and blue to match the purple target.</h4>
-</section>
-<section id="even-though-its-choosing-among-discrete-categories-its-doing-it-in-a-way-thats-smooth-and-differentiable." class="level4">
-<h4 class="anchored" data-anchor-id="even-though-its-choosing-among-discrete-categories-its-doing-it-in-a-way-thats-smooth-and-differentiable."><em>Even though it’s choosing among discrete categories, it’s doing it in a way that’s smooth and differentiable.</em></h4>
+<section id="even-though-were-choosing-among-discrete-options-rgb-gumbel-softmax-lets-the-model-learn-differentiably-by-softly-blending-probabilities." class="level4">
+<h4 class="anchored" data-anchor-id="even-though-were-choosing-among-discrete-options-rgb-gumbel-softmax-lets-the-model-learn-differentiably-by-softly-blending-probabilities."><em>Even though we’re choosing among discrete options (RGB), Gumbel-Softmax lets the model learn differentiably by softly blending probabilities.</em></h4>
 <p>Some reading material: <a href="https://arxiv.org/pdf/1611.01144">Arxiv Link</a></p>
 
 
