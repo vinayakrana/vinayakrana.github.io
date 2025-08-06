@@ -15,7 +15,7 @@ website:
         text: Timeline
       - href:  tech_nuggets/index.qmd
         text: Tech Nuggets
-      - href: apps
+      - href: apps.qmd
         text: Apps
       - href: Home
         text: CV

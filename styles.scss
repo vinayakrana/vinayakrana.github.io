@@ -6,6 +6,11 @@ $font-family: "Roboto", sans-serif;
 $font-family-serif: "Roboto", sans-serif;
 
 /*-- scss:rules --*/
+body {
+  font-size: 1rem; /* Enforce consistent base font size */
+  background-color: #f8f9fa;
+}
+
 kbd,
 .kbd {
     background-color: #f6f5f5 !important;
@@ -14,4 +19,105 @@ kbd,
 .navbar {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
+    background-color: #375a7f; /* Match dark theme navbar color */
+}
+
+/* Set navbar brand (site title) color and font properties */
+.navbar-brand {
+  color: #ffffff !important;
+  font-size: 1.25rem !important; /* Match Quarto's default title size */
+  font-weight: 500 !important;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-right: 1rem;
+}
+
+/* Change navbar link color to white and increase font size */
+.navbar-nav .nav-link {
+  color: #ffffff !important;
+  font-size: 1.1rem;
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Add a hover effect to navbar links */
+.navbar-nav .nav-link:hover {
+  transform: translateY(-2px);
+}
+
+/* Style for buttons */
+.btn {
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Add a "lift" and shadow effect on hover for buttons */
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* Style for social media buttons */
+.about-links a {
+  display: inline-block;
+  padding: 1.35rem 1.875rem;
+  border-radius: 50px; /* Pill-shaped */
+  color: white !important;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  margin: 0.25rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  line-height: 1;
+}
+
+.about-links a:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+/* Brand colors for buttons */
+.about-links a[href*="github.com"] { background-color: #333; }
+.about-links a[href*="linkedin.com"] { background-color: #0A66C2; }
+.about-links a[href*="mailto:"] { background-color: #868e96; } /* A lighter grey */
+.about-links a[href*="kaggle.com"] { background-color: #20BEFF; }
+
+/* Ensure icon inside the link is styled correctly */
+.about-links a .bi {
+  font-size: 1.125rem;
+  color: white !important;
+  vertical-align: middle;
+  transition: none;
+}
+
+/* Remove any lingering hover effects from just the icon */
+.about-links a .bi:hover {
+  transform: none;
+  color: white !important;
+}
+
+.card-img-top {
+    max-height: 200px;
+    object-fit: cover;
+}
+
+/* Make the theme toggle button bigger */
+.nav-link[aria-label="Toggle theme"] .bi {
+  font-size: 1.8rem !important; /* Forcefully increase the icon size */
+  line-height: 1; /* Ensure proper vertical alignment */
+  transition: transform 0.2s ease-in-out;
+}
+
+.nav-link[aria-label="Toggle theme"]:hover .bi {
+    transform: translateY(-2px);
+}
+
+/* Make search and theme toggle icons white in light mode */
+.navbar .nav-item #quarto-search-icon,
+.navbar .nav-item .nav-link[aria-label="Toggle theme"] .bi {
+    color: #ffffff !important;
+}
+
+/* Increase font size and set color for main page content */
+#quarto-document-content p {
+    font-size: 1.1rem;
+    color: #000000;
 }
