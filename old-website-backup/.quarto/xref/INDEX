@@ -1,0 +1,47 @@
+{
+  "index.qmd": {
+    "index.html": "d311acee"
+  },
+  "group.qmd": {
+    "group.html": "6b7aabe4"
+  },
+  "group_pics.qmd": {
+    "group_pics.html": "9a298c2b"
+  },
+  "media.qmd": {
+    "media.html": "66f0e28c"
+  },
+  "news.qmd": {
+    "news.html": "3c5b0c7e"
+  },
+  "papers/index.qmd": {
+    "index.html": "59ad9a3d"
+  },
+  "teaching.qmd": {
+    "teaching.html": "00258338"
+  },
+  "timeline.qmd": {
+    "timeline.html": "a1fb9557"
+  },
+  "apps.qmd": {
+    "apps.html": "ed3de362"
+  },
+  "tech_nuggets/index.qmd": {
+    "index.html": "5aad8671"
+  },
+  "tech_nuggets/posts/dict_key_lookup.ipynb": {
+    "dict_key_lookup.html": "376c318d"
+  },
+  "tech_nuggets/posts/gumbel.ipynb": {
+    "gumbel.html": "db5fa5ab"
+  },
+  "test.qmd": {
+    "test.html": "0613d78e"
+  },
+  "index_clean.qmd": {
+    "index_clean.html": "addfe87e"
+  },
+  "index_new.qmd": {
+    "index_new.html": "8388139f"
+  }
+}

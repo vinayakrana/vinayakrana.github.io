@@ -1,0 +1,1 @@
+{"entries":[],"headings":["can-neural-networks-learn-to-make-hard-choices-and-still-be-trained-with-backprop","so-are-we-stuck","why-argmax-kills-your-gradients","the-magic-behind-gumbel-softmax","even-though-were-choosing-among-discrete-options-rgb-gumbel-softmax-lets-the-model-learn-differentiably-by-softly-blending-probabilities."]}

@@ -1,3 +1,0 @@
-# ScholarBot: AI-powered chatbot designed to assist with academic queries
-
-[![](images/scholarbot.png)](https://huggingface.co/spaces/vinny4/ScholarBot)
