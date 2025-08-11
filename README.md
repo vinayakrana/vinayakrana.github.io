@@ -1,12 +1,22 @@
-# quarto-course-website-template
+# Vinayak Rana - Portfolio
 
-A template for course websites developed with Quarto and hosted on GitHub
+Modern React portfolio website showcasing AI research and machine learning projects.
 
-Only need to edit the source files in Quarto. The website is generated and hosted automatically by GitHub.
+## Features
+- Modern React with Vite
+- Responsive design
+- Interactive timeline
+- Publications showcase
+- Tech nuggets and apps
 
-Website: https://pakillo.github.io/quarto-course-website-template
+## Live Site
+Visit: https://vinayakrana.github.io
 
-See also https://github.com/rstudio-conf-2022/teach-ds-course-website for a more developed example
+## Development
+```bash
+npm install
+npm run dev
+```
 
 Note: If using this repo as a template for a new repo of yours, remember to check 'Include all branches' when creating the repository (because we will need the gh-pages branch to host the website).
 
