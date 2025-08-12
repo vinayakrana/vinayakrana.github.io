@@ -1,6 +1,7 @@
 import React from 'react'
-import { HashRouter as Router, Routes, Route } from 'react-router-dom'
+import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import Home from './pages/Home'
+import Timeline from './pages/TimelineSimple'
 
 // Simple test components
 const TestPublications = () => (
@@ -195,11 +196,11 @@ function App() {
               </span>
             </div>
             <div style={{ display: 'flex', gap: '30px' }}>
-              <a href="/" style={{ color: 'white', textDecoration: 'none' }}>Home</a>
-              <a href="/publications" style={{ color: 'white', textDecoration: 'none' }}>Publications</a>
-              <a href="/timeline" style={{ color: 'white', textDecoration: 'none' }}>Timeline</a>
-              <a href="/tech-nuggets" style={{ color: 'white', textDecoration: 'none' }}>Tech Nuggets</a>
-              <a href="/apps" style={{ color: 'white', textDecoration: 'none' }}>Apps</a>
+              <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>Home</Link>
+              <Link to="/publications" style={{ color: 'white', textDecoration: 'none' }}>Publications</Link>
+              <Link to="/timeline" style={{ color: 'white', textDecoration: 'none' }}>Timeline</Link>
+              <Link to="/tech-nuggets" style={{ color: 'white', textDecoration: 'none' }}>Tech Nuggets</Link>
+              <Link to="/apps" style={{ color: 'white', textDecoration: 'none' }}>Apps</Link>
             </div>
           </div>
         </nav>
@@ -207,7 +208,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/publications" element={<TestPublications />} />
-          <Route path="/timeline" element={<TestTimeline />} />
+          <Route path="/timeline" element={<Timeline />} />
           <Route path="/tech-nuggets" element={<TestTechNuggets />} />
           <Route path="/apps" element={<TestApps />} />
         </Routes>
