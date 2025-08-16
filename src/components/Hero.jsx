@@ -400,7 +400,7 @@ const Hero = () => {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.2 }}
               >
-                <StatNumber>3</StatNumber>
+                <StatNumber>1</StatNumber>
                 <StatLabel>Publications</StatLabel>
               </StatItem>
             </StatsContainer>

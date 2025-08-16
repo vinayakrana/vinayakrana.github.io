@@ -18,6 +18,15 @@ const SectionTitle = styled(motion.h2)`
   background-clip: text;
 `
 
+const ResearchIntro = styled(motion.p)`
+  font-size: 1.1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  max-width: 800px;
+  margin: 0 auto 3rem;
+  line-height: 1.6;
+`
+
 const ResearchGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -62,16 +71,20 @@ const CardDescription = styled.p`
 const Research = () => {
   const researchAreas = [
     {
-      title: 'Deep Learning Architectures',
-      description: 'Exploring novel neural network designs and optimization techniques.'
+      title: 'Spatiotemporal Modeling',
+      description: 'Developing neural process–based models for forecasting and interpolation of environmental data (e.g., air quality monitoring).'
     },
     {
-      title: 'Computer Vision Systems',
-      description: 'Building robust vision systems for real-world applications.'
+      title: 'Active Learning & Optimization',
+      description: 'Designing intelligent sampling strategies to select the most informative data points, reducing labeling costs while maximizing model performance through advanced acquisition functions.'
     },
     {
-      title: 'Natural Language Processing',
-      description: 'Creating intelligent systems that understand human language.'
+      title: 'Efficient Acquisition Functions',
+      description: 'Exploring scalable methods to accelerate mutual information–based and variance-based selection within deep probabilistic models.'
+    },
+    {
+      title: 'Language Model Applications',
+      description: 'Building retrieval-augmented generation (RAG) systems for knowledge-grounded AI assistants and developing agentic systems for automation workflows, focusing on document retrieval, model efficiency, and deployment readiness.'
     }
   ]
 
@@ -84,6 +97,15 @@ const Research = () => {
       >
         Research Focus
       </SectionTitle>
+      
+      <ResearchIntro
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        My research lies at the intersection of machine learning, probabilistic modeling, and applied AI for societal impact. I focus on:
+      </ResearchIntro>
+      
       <ResearchGrid>
         {researchAreas.map((area, index) => (
           <ResearchCard

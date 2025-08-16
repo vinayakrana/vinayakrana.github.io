@@ -6,52 +6,40 @@ import { FaGraduationCap, FaGift } from 'react-icons/fa'
 const Timeline = () => {
   const timelineData = [
     {
-      date: 'January 2025',
-      title: 'Keynote Speaker at AI Summit 2025',
-      subtitle: 'Sustainable AI: Building Tomorrow\'s Solutions',
-      description: 'Delivered a keynote presentation on "AI for Environmental Sustainability" at the International AI Summit, addressing 500+ researchers and industry leaders.',
-      icon: FaGift,
-      tags: ['Speaking', 'Keynote', 'AI Summit']
-    },
-    {
       date: 'December 2024',
-      title: 'Best Paper Award - ICML Workshop',
-      subtitle: 'Outstanding Research in Sustainable ML',
-      description: 'Received Best Paper Award at the ICML Workshop on "AI for Climate" for research on energy-efficient deep learning models.',
-      icon: FiStar,
-      tags: ['Award', 'Best Paper', 'ICML']
+      title: 'Joined Sustainability Lab',
+      subtitle: 'Research Under Prof. Nipun Batra',
+      description: 'Started research work focusing on AI applications for environmental sustainability, energy optimization, and smart systems under the guidance of Prof. Nipun Batra at IIT Gandhinagar.',
+      icon: FiTrendingUp,
+      tags: ['Research', 'Sustainability', 'AI'],
+      links: [
+        { text: 'Sustainability Lab', url: 'https://sustainability-lab.github.io/' },
+        { text: 'Prof. Nipun Batra', url: 'https://nipunbatra.github.io/' }
+      ]
     },
     {
-      date: 'November 2024',
-      title: 'Open Source Contribution',
-      subtitle: 'EcoML Framework - 1K+ GitHub Stars',
-      description: 'Released EcoML, an open-source framework for sustainable machine learning practices with global community contributions.',
-      icon: FiCode,
-      tags: ['Open Source', 'Community', 'Impact']
+      date: 'August 2024',
+      title: 'Started M.Tech in AI',
+      subtitle: 'IIT Gandhinagar - Computer Science & Engineering',
+      description: 'Began pursuing Master of Technology in Artificial Intelligence at IIT Gandhinagar, focusing on advanced AI and machine learning research with applications in sustainability.',
+      icon: FaGraduationCap,
+      tags: ['Education', 'AI', 'IIT Gandhinagar']
     },
     {
-      date: 'March 2024',
-      title: 'GATE CS 2024 - AIR 733',
-      subtitle: 'All India Rank 733 among 100,000+ candidates',
-      description: 'Secured top 1% rank in Graduate Aptitude Test in Engineering (Computer Science).',
-      icon: FiAward,
-      tags: ['Achievement', 'Top 1%', 'GATE']
+      date: 'June 2024',
+      title: 'Completed B.Tech in CSE',
+      subtitle: 'Punjab Technical University (PTU)',
+      description: 'Successfully completed Bachelor of Technology in Computer Science Engineering from Punjab Technical University, building a strong foundation in computer science fundamentals.',
+      icon: FaGraduationCap,
+      tags: ['Education', 'B.Tech', 'Computer Science']
     },
     {
       date: 'January 2024',
-      title: 'Joined Sustainability Lab',
-      subtitle: 'Research Under Prof. Nipun Batra',
-      description: 'Started research work focusing on AI applications for environmental sustainability at IIT Gandhinagar.',
-      icon: FiTrendingUp,
-      tags: ['Research', 'Sustainability', 'IIT Gandhinagar']
-    },
-    {
-      date: 'August 2023 - Present',
-      title: 'Master of Technology',
-      subtitle: 'Computer Science & Engineering - IIT Gandhinagar',
-      description: 'Pursuing advanced studies in AI and ML with focus on practical applications for environmental challenges.',
-      icon: FaGraduationCap,
-      tags: ['Education', 'AI Research', 'IIT Gandhinagar']
+      title: 'GATE CS 2024 - AIR 733',
+      subtitle: 'All India Rank 733 among 100,000+ candidates',
+      description: 'Cleared Graduate Aptitude Test in Engineering (Computer Science) with All India Rank 733 and 99.4 percentile, securing admission to premier institutes. Achieved top 0.6% rank demonstrating exceptional technical fundamentals.',
+      icon: FiAward,
+      tags: ['Achievement', 'GATE', 'Top 0.6%']
     }
   ]
 
@@ -216,6 +204,33 @@ const Timeline = () => {
                 <h3 style={itemTitleStyle}>{item.title}</h3>
                 <div style={itemSubtitleStyle}>{item.subtitle}</div>
                 <p style={descriptionStyle}>{item.description}</p>
+                
+                {item.links && (
+                  <div style={{ marginBottom: '1rem' }}>
+                    {item.links.map((link, linkIndex) => (
+                      <a 
+                        key={`link-${index}-${linkIndex}`}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          color: '#3b82f6',
+                          textDecoration: 'none',
+                          marginRight: '1rem',
+                          fontSize: '0.9rem',
+                          fontWeight: '500',
+                          display: 'inline-block',
+                          marginBottom: '0.5rem'
+                        }}
+                        onMouseOver={(e) => e.target.style.textDecoration = 'underline'}
+                        onMouseOut={(e) => e.target.style.textDecoration = 'none'}
+                      >
+                        🔗 {link.text}
+                      </a>
+                    ))}
+                  </div>
+                )}
+                
                 <div style={tagsStyle}>
                   {item.tags.map((tag, tagIndex) => (
                     <span key={`tag-${index}-${tagIndex}`} style={tagStyle}>

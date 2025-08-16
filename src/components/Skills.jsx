@@ -56,20 +56,24 @@ const SkillItem = styled.li`
 const Skills = () => {
   const skillCategories = [
     {
-      title: 'Programming',
-      skills: ['Python', 'C/C++', 'Java', 'MATLAB', 'R']
+      title: 'Programming & Tools',
+      skills: ['Python (NumPy, Pandas, PyTorch, TensorFlow, Scikit-learn)', 'C++', 'SQL', 'MongoDB', 'Bash', 'Git', 'LaTeX']
     },
     {
-      title: 'AI & Machine Learning',
-      skills: ['Deep Learning', 'NLP', 'Computer Vision', 'TensorFlow', 'PyTorch']
+      title: 'Machine Learning & AI',
+      skills: ['Supervised/Unsupervised Learning', 'Deep Learning (CNNs, RNNs, Transformers, GNNs)', 'Probabilistic Modeling (Neural Processes, Gaussian Processes)', 'Spatiotemporal Modeling', 'Active Learning (variance, mutual information, gradient-based)', 'Model Optimization (LoRA, quantization, fine-tuning LLMs)']
     },
     {
-      title: 'Data Science',
-      skills: ['Pandas', 'NumPy', 'Matplotlib', 'Seaborn', 'SQL']
+      title: 'NLP & RAG',
+      skills: ['Text Preprocessing', 'Hugging Face', 'LLM Fine-tuning', 'Retrieval-Augmented Generation (RAG)', 'LangChain/LangGraph', 'Vector Databases (FAISS, Pinecone, Weaviate, Chroma)', 'Agentic systems']
     },
     {
-      title: 'Tools & Frameworks',
-      skills: ['Git', 'Docker', 'AWS', 'Linux', 'Jupyter']
+      title: 'Cloud & MLOps',
+      skills: ['Docker', 'FastAPI/Flask', 'MLflow', 'CI/CD (GitHub Actions)', 'Azure']
+    },
+    {
+      title: 'Academic & Research',
+      skills: ['Academic Writing (AAAI submission experience)', 'Statistics', 'Probability', 'Linear Algebra']
     }
   ]
 
