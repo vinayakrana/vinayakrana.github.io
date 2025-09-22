@@ -343,11 +343,6 @@ const Hero = () => {
     document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const downloadCV = () => {
-    // Add CV download logic here
-    console.log('Downloading CV...')
-  }
-
   return (
     <HeroSection id="home">
       <HeroContent>
@@ -418,7 +413,10 @@ const Hero = () => {
               <SecondaryButton
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={downloadCV}
+                as="a"
+                href="/resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <FiDownload />
                 Download CV
